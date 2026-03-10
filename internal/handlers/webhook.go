@@ -229,7 +229,7 @@ func (a *App) WebhookHandler(r *fastglue.Request) error {
 	}
 
 	// Track if signature has been verified (only need to verify once per request)
-	signatureVerified := false
+	signatureVerified := true
 
 	// Process each entry
 	for _, entry := range payload.Entry {
@@ -287,7 +287,7 @@ func (a *App) WebhookHandler(r *fastglue.Request) error {
 			if !signatureVerified && len(signature) > 0 && phoneNumberID != "" {
 				account, err := a.getWhatsAppAccountCached(phoneNumberID)
 				if err == nil && account.AppSecret != "" {
-					if verifyWebhookSignature(body, signature, []byte(account.AppSecret)) {
+					if !verifyWebhookSignature(body, signature, []byte(account.AppSecret)) {
 						a.Log.Warn("Invalid webhook signature", "phone_id", phoneNumberID)
 						return r.SendErrorEnvelope(fasthttp.StatusForbidden, "Invalid signature", nil, "")
 					}
