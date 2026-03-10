@@ -286,7 +286,16 @@ func (a *App) WebhookHandler(r *fastglue.Request) error {
 			// Verify webhook signature on first message processing (uses cached account)
 			if !signatureVerified && len(signature) > 0 && phoneNumberID != "" {
 				account, err := a.getWhatsAppAccountCached(phoneNumberID)
+				a.Log.Debug("Webhook debug",
+					"phone_id", phoneNumberID,
+					"signature_header", string(signature),
+					"body_length", len(body),
+				)
+
 				if err == nil && account.AppSecret != "" {
+					a.Log.Debug("Account debug",
+						"app_secret_set", account.AppSecret != "",
+					)
 					if !verifyWebhookSignature(body, signature, []byte(account.AppSecret)) {
 						a.Log.Warn("Invalid webhook signature", "phone_id", phoneNumberID)
 						return r.SendErrorEnvelope(fasthttp.StatusForbidden, "Invalid signature", nil, "")
