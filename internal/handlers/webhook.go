@@ -297,7 +297,7 @@ func (a *App) WebhookHandler(r *fastglue.Request) error {
 						"app_secret_set", account.AppSecret != "",
 					)
 					sig := strings.TrimPrefix(string(signature), "sha256=")
-					if !verifyWebhookSignature(body, sig, []byte(account.AppSecret)) {
+					if !verifyWebhookSignature(body, []byte(sig), []byte(account.AppSecret)) {
 						a.Log.Warn("Invalid webhook signature", "phone_id", phoneNumberID)
 						return r.SendErrorEnvelope(fasthttp.StatusForbidden, "Invalid signature", nil, "")
 					}
